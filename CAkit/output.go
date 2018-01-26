@@ -96,7 +96,7 @@ func DumpCertificate(cert *x509.Certificate) string {
 	buf.WriteString(fmt.Sprintf("\tNot After:  %v\n", cert.NotAfter))
 	
 	buf.WriteString(fmt.Sprintf("Subject: %s\n", PKIXName_DN(&cert.Subject)))
-	buf.WriteString(fmt.Sprintf("Public Key: ")		// pkAlgoNames[cert.PublicKeyAlgorithm]))
+	buf.WriteString(fmt.Sprintf("Public Key: "))		// pkAlgoNames[cert.PublicKeyAlgorithm]))
 	buf.WriteString(PubKeyToString(cert.PublicKey))
 	buf.WriteString(fmt.Sprintf("\n\tSKI: %X\n", cert.SubjectKeyId))
 // 	buf.WriteString("\n")

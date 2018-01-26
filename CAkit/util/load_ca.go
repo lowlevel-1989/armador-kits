@@ -10,8 +10,8 @@ import (
  	"encoding/pem"
  	"errors"
  	"io/ioutil"
-	
-	cakit "../"
+
+	cakit "armador/CAkit"
 )
 
 

@@ -15,7 +15,7 @@ import (
 
 	"os"
 	
-	cakit ".."
+	cakit "armador/CAkit"
 )
 
 const (
