@@ -5,35 +5,98 @@ package loop
 */
 import "C"
 
+import (
+	"path/filepath"
+	"os"
+	"bufio"
+	"strings"
+	"strconv"
+)
 
-// Setup loopdev /dev/loop0 -- temporarily
-tracer.Trace(2,"Attaching loopdev")
+const (
+	f_mounts = "/proc/mounts"
+)
 
-if _,err := os.Stat(loopNode); de.CheckErrno(err,syscall.ENOENT) {
+type MountDev struct {
+	DEV string
+	PATH string
+	FS string
+	N uint8
+}
 
-	tracer.Warn("node '"+loopNode+"' not found. About to create it")
-	if ce := loop.CreateNode(0); nil!=ce {
-		tracer.FatalErr(err)
-		os.Exit(4)
+var (
+	cfd int	= -1 // variable de control
+)
+
+func InitAdvanced() error {
+
+	r,err := C.openCN()
+	if nil!=err {
+		return err
+	}
+	cfd = int(r)
+	return nil
+}
+
+func Deinit() (err error) {
+	_,err = C.closeCN(C.int(cfd))
+	return
+}
+
+func RawAlloc() (uint8,error) {
+	dn, err := C.loopGetFree(C.int(cfd))
+	if dn < 0 {
+		return 0xFF,err
 	}
 
+	return uint8(dn),nil
 }
 
-err = loop.SetupX(0,fout,1*units.Mibi, licData.VolKey)
-if /*lfd < 0 ||*/ nil!=err  {
-	tracer.Fatal("Could not attach to loopdev")
-	tracer.FatalErr(err)
-	os.Exit(253)
+
+func SetupX(devnr uint8, backing_fn string, loff uint64, key []byte) error {
+
+	ptr := C.CBytes(key)
+	r,err := C.setupNodeX(C.u_int8_t(devnr), C.CString(backing_fn), C.size_t(loff),
+					(*C.u_int8_t)(&key[0]), C.uint(len(key)))
+	C.free(ptr)
+	if r<0 || nil != err {
+		return err
+	}
+
+	return nil
 }
 
-//fmt.Scanln()
-
-tracer.Trace(3,"MKFS ...")
-
-var mkfsopts []string
-if forceCreate {
-	tracer.Info("Forcing overwrite by MKFS")
-	mkfsopts = []string{"-f"}
+func CreateNode(devnr uint8) error {
+	_,err := C.createNode(C.u_int8_t(devnr))
+	return err
 }
-tracer.TraceV(5,"MKFS args:",mkfsopts)
 
+func Detach(devnr uint8) error {
+	_,err := C.detachNode(C.u_int8_t(devnr))
+	return err
+}
+
+func GetLoopMount(dir string) ([]MountDev, int) {
+	volume_dir, _ := filepath.Abs(dir)
+
+	list_mounts := make([]MountDev, 0, 5)
+
+	f, _ := os.Open(f_mounts)
+	defer f.Close()
+
+	// Splits on newlines by default.
+	scanner := bufio.NewScanner(f)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.Contains(line, volume_dir) {
+			dev_data := strings.Split(line, " ")
+			N, _ := strconv.Atoi(string(dev_data[0][len(dev_data[0])-1]))
+			dev_loop := MountDev{dev_data[0], dev_data[1], dev_data[2], ((uint8)(N))}
+			list_mounts = append(list_mounts, dev_loop)
+		}
+	}
+
+	return list_mounts, len(list_mounts)
+
+}
