@@ -53,17 +53,17 @@ func RawAlloc() (uint8,error) {
 }
 
 
-func SetupX(devnr uint8, backing_fn string, loff uint64, key []byte) error {
+func SetupX(devnr uint8, backing_fn string, loff uint64, slimit uint64, key []byte) (int, error) {
 
 	ptr := C.CBytes(key)
 	r,err := C.setupNodeX(C.u_int8_t(devnr), C.CString(backing_fn), C.size_t(loff),
-					(*C.u_int8_t)(&key[0]), C.uint(len(key)))
+				C.size_t(slimit), (*C.u_int8_t)(&key[0]), C.uint(len(key)))
 	C.free(ptr)
 	if r<0 || nil != err {
-		return err
+		return -1, err
 	}
 
-	return nil
+	return int(r), nil
 }
 
 func CreateNode(devnr uint8) error {
@@ -71,8 +71,18 @@ func CreateNode(devnr uint8) error {
 	return err
 }
 
-func Detach(devnr uint8) error {
-	_,err := C.detachNode(C.u_int8_t(devnr))
+func Detach(devnr uint8, fddev int) error {
+
+	var err error
+
+	if fddev >= 0 {
+		_, err = C.closeCN(C.int(fddev))
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = C.detachNode(C.u_int8_t(devnr))
 	return err
 }
 

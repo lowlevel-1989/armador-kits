@@ -5,6 +5,7 @@
 package fs
 
 import (
+//	"os"
 	"os/exec"
 )
 
@@ -24,8 +25,8 @@ func MakeFS(devname string, opts []string) error {
 
 	cmd := exec.Cmd{Path: mkfs_bin, Args: args, Env: []string{}}
 
-	// cmd.Stdout = os.Stdout
-	// cmd.Stderr = os.Stderr
+//	cmd.Stdout = os.Stdout
+//	cmd.Stderr = os.Stderr
 
 	// XXX: TODO: ExecErrorConv
 	return cmd.Run()

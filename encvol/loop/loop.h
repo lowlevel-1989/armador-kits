@@ -12,7 +12,7 @@ static const char loopbase[] = "/dev/loop%hu";
 
 static inline int _devfd(char* buf, size_t sz, u_int8_t devnr);
 
-int setupNodeX(u_int8_t devnr, char* backing_fn, size_t off, u_int8_t* pbKey, unsigned keyLen);
+int setupNodeX(u_int8_t devnr, char* backing_fn, size_t off, size_t sizelimit, u_int8_t* pbKey, unsigned keyLen);
 
 int detachNode(u_int8_t devnr);
 

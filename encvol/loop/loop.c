@@ -11,7 +11,7 @@ static inline int _devfd(char* buf, size_t sz, u_int8_t devnr) {
 }
 
 
-int setupNodeX(u_int8_t devnr, char* backing_fn, size_t off, u_int8_t* pbKey, unsigned keyLen) {
+int setupNodeX(u_int8_t devnr, char* backing_fn, size_t off, size_t sizelimit, u_int8_t* pbKey, unsigned keyLen) {
 	if( !pbKey || keyLen<16 || keyLen>32 ){
 		return -1;
 	}
@@ -35,6 +35,7 @@ int setupNodeX(u_int8_t devnr, char* backing_fn, size_t off, u_int8_t* pbKey, un
 	struct loop_info64 li64;
 	memset(&li64,0,sizeof(struct loop_info64));
 	li64.lo_offset = off;
+	li64.lo_sizelimit = sizelimit; // bytes, 0 == max available
 
 	li64.lo_encrypt_type=1;
 
