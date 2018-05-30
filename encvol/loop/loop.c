@@ -76,15 +76,6 @@ int detachNode(u_int8_t devnr) {
 	return close(lfd);
 }
 
-
-int createNode(u_int8_t devnr) {
-	char buf[16];
-
-	snprintf(buf, sizeof(buf), loopbase, devnr);
-	return mknod(buf, S_IFBLK | 0660, makedev(7,devnr));
-}
-
-
 int openCN() {
 	return open("/dev/loop-control", O_RDWR|O_CLOEXEC);
 }

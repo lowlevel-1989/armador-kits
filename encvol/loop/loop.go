@@ -66,11 +66,6 @@ func SetupX(devnr uint8, backing_fn string, loff uint64, slimit uint64, key []by
 	return int(r), nil
 }
 
-func CreateNode(devnr uint8) error {
-	_,err := C.createNode(C.u_int8_t(devnr))
-	return err
-}
-
 func Detach(devnr uint8, fddev int) error {
 
 	var err error

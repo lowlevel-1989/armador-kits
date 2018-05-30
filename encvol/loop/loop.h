@@ -16,8 +16,6 @@ int setupNodeX(u_int8_t devnr, char* backing_fn, size_t off, size_t sizelimit, u
 
 int detachNode(u_int8_t devnr);
 
-int createNode(u_int8_t devnr);
-
 int openCN();
 int closeCN(int fd);
 int loopGetFree(int cfd);
