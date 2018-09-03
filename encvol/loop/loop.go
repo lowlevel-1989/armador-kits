@@ -1,8 +1,7 @@
 package loop
 
-/*
-#include "loop.h"
-*/
+//#include "loop.h"
+//#cgo CFLAGS: -I/usr/include
 import "C"
 
 import (
