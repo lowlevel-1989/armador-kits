@@ -37,7 +37,19 @@ int setupNodeX(u_int8_t devnr, char* backing_fn, size_t off, size_t sizelimit, u
 	li64.lo_offset = off;
 	li64.lo_sizelimit = sizelimit; // bytes, 0 == max available
 
-	li64.lo_encrypt_type=1;
+    struct utsname system_info;
+
+    // Obtener la información del sistema
+    if (uname(&system_info) != 0) {
+		close(lfd);
+		return -1;
+    }
+
+    // Verificar si la versión del kernel es menor o igual a 3
+    int major_version = atoi(system_info.release);
+    if (major_version <= 3) {
+	    li64.lo_encrypt_type=1;
+    }
 
 	unsigned kl = (keyLen>32)? keyLen % 32 : keyLen;
 	li64.lo_encrypt_key_size=kl;

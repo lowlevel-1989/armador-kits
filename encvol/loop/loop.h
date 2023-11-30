@@ -1,4 +1,5 @@
 #include <fcntl.h>
+#include <sys/utsname.h>
 #include <linux/loop.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
