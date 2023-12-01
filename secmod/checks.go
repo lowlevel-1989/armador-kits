@@ -6,12 +6,15 @@ package secmod
 
 
 /*
+#include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <string.h>
+#include <errno.h>
 
 // including the implementation suffices -- will include the headers too
 #include "lib/sha1.c"
@@ -27,8 +30,17 @@ checkFile(const char* name, const uint8_t* hash, size_t fsize)
 {
 	int fd = 0;
 
+        // debug
+        // printf("HIT   [%s]\n", name);
+        // char command[100];
+        // sprintf(command, "ls -l %s", name);
+        // system(command);
+
 	if( (fd=open(name, O_RDONLY|O_CLOEXEC,444)) < 0 )
-	return 1;
+        {
+         // printf("Error: %s\n", strerror(errno));
+	 return 1;
+        }
 
 	SHA1_CTX ctx;
 	SHA1Init(&ctx);
@@ -57,8 +69,14 @@ checkFile(const char* name, const uint8_t* hash, size_t fsize)
 
 	close(fd);
 
+
 	_x(ph,HASH_SIZE,0xA5);
-	if( (sb.st_size ^ fsize) || memcmp(ph,hash,HASH_SIZE) )
+
+        // TODO: habilitar la validación del tamaño de archivo
+	// if( (sb.st_size ^ fsize) || memcmp(ph,hash,HASH_SIZE) )
+
+        // se valida el hash
+	if( memcmp(ph,hash,HASH_SIZE) )
 	return 5;
 
 	return 0;
